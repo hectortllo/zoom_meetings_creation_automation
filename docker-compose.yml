@@ -1,0 +1,80 @@
+version: "3.7"
+services:
+    app:
+        build:
+            args:
+                user: hector
+                uid: 1000
+            context: ./
+            dockerfile: Dockerfile
+        image: zoom-meetings
+        container_name: zoom-meetings-app
+        restart: unless-stopped
+        working_dir: /var/www/
+        volumes:
+            - ./:/var/www
+        networks:
+            - backend
+
+    mysql:
+        image: mysql:5.7
+        container_name: zoom-meetings-mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_USER: ${DB_USERNAME}
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        ports:
+            - "${MAP_DB_PORT}:3306"
+        volumes:
+            - ~/.zoom-meetings/data/mysql:/var/lib/mysql
+            - ./docker-compose/mysql:/docker-entrypoint-initdb.d
+        networks:
+            - backend
+
+    nginx:
+        image: nginx:1.17-alpine
+        container_name: zoom-meetings-nginx
+        restart: unless-stopped
+        ports:
+            - "${MAP_HTTP_PORT}:80"
+            - "443:443"
+        volumes:
+            - ./:/var/www
+            - ./docker-compose/nginx/${NGINX_CONFIG_FOLDER}:/etc/nginx/conf.d
+            - ./data/certbot/conf:/etc/letsencrypt
+            - ./data/certbot/www:/var/www/certbot
+        networks:
+            - backend
+        command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+
+    ### MongoDB 3.6 Container #######################################
+    mongo:
+        image: mongo:3.6
+        #network_mode: bridge
+        container_name: zoom-meetings-mongo
+        restart: unless-stopped
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${DB_MONGO_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${DB_MONGO_PASSWORD}
+        ports:
+            - "${MAP_MONGO_PORT}:27017"
+        volumes:
+            - ~/.zoom-meetings/data/mongo:/data/db
+        networks:
+            - backend
+
+    certbot:
+        image: certbot/certbot
+        container_name: zoom-meetings-certbot
+        restart: unless-stopped
+        volumes:
+            - ./data/certbot/conf:/etc/letsencrypt
+            - ./data/certbot/www:/var/www/certbot
+        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+networks:
+    backend:
+        driver: bridge
