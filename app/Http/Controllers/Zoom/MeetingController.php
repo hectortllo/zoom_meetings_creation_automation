@@ -67,6 +67,8 @@ class MeetingController extends Controller
                 'host_video' => false,
                 'participant_video' => true,
                 'waiting_room' => true,
+                'join_before_host' => true,
+                'mute_upon_entry' => true,
             ]
         ]);
 
