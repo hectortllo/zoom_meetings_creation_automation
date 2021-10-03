@@ -24,7 +24,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        if (env("IS_LOCAL_DEV", false)) {
+            return false;
+        }
+
+        $schedule->command('create:zoommeeting')
+            ->weeklyOn(4, '09:00')
+            ->timezone('America/Guatemala');
     }
 
     /**
@@ -34,7 +40,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
