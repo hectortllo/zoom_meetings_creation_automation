@@ -22,3 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/meetings', [MeetingController::class, 'list']);
 
 Route::post('/meetings', [MeetingController::class, 'create']);
+
+Route::get('/meetings/{id}', [MeetingController::class, 'get']);
+Route::patch('/meetings/{id}', [MeetingController::class, 'update']);
+Route::delete('/meetings/{id}', [MeetingController::class, 'delete']);
