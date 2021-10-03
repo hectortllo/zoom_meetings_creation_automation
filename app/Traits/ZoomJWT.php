@@ -4,8 +4,10 @@ namespace App\Traits;
 
 use Illuminate\Support\Facades\Log;
 
-trait ZoomJWT {
-    private function generateZoomToken() {
+trait ZoomJWT
+{
+    private function generateZoomToken()
+    {
         $key = env('ZOOM_API_KEY', '');
         $secret = env('ZOOM_API_SECRET', '');
         $payload = [
@@ -16,11 +18,13 @@ trait ZoomJWT {
         return \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
     }
 
-    private function retrieveZoomUrl() {
+    private function retrieveZoomUrl()
+    {
         return env('ZOOM_API_URL', '');
     }
 
-    private function zoomRequest() {
+    private function zoomRequest()
+    {
         $jwt = $this->generateZoomToken();
         return \Illuminate\Support\Facades\Http::withHeaders([
             'authorization' => 'Bearer ' . $jwt,
@@ -28,31 +32,36 @@ trait ZoomJWT {
         ]);
     }
 
-    public function zoomGet(string $path, array $query = []) {
+    public function zoomGet(string $path, array $query = [])
+    {
         $url = $this->retrieveZoomUrl();
         $request = $this->zoomRequest();
         return $request->get($url . $path, $query);
     }
 
-    public function zoomPost(string $path, array $body = []) {
+    public function zoomPost(string $path, array $body = [])
+    {
         $url = $this->retrieveZoomUrl();
         $request = $this->zoomRequest();
         return $request->post($url . $path, $body);
     }
 
-    public function zoomPatch(string $path, array $body = []) {
+    public function zoomPatch(string $path, array $body = [])
+    {
         $url = $this->retrieveZoomUrl();
         $request = $this->zoomRequest();
         return $request->patch($url . $path, $body);
     }
 
-    public function zoomDelete(string $path, array $body = []) {
+    public function zoomDelete(string $path, array $body = [])
+    {
         $url = $this->retrieveZoomUrl();
         $request = $this->zoomRequest();
         return $request->delete($url . $path, $body);
     }
 
-    public function toZoomTimeFormat(string $datetime) {
+    public function toZoomTimeFormat(string $datetime)
+    {
         try {
             $date = new \DateTime($datetime);
             return $date->format('Y-m-d\TH:i:s');
@@ -62,7 +71,8 @@ trait ZoomJWT {
         }
     }
 
-    public function toUnixTimeStamp(string $datetime, string $timezone) {
+    public function toUnixTimeStamp(string $datetime, string $timezone)
+    {
         try {
             $date = new \DateTime($datetime, new \DateTimeZone($timezone));
             return $date->getTimestamp();
