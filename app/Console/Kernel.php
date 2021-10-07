@@ -24,13 +24,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        if (env("IS_LOCAL_DEV", false)) {
-            return false;
-        }
-
         $schedule->command('create:zoommeeting')
-            ->weeklyOn(4, '09:00')
-            ->timezone('America/Guatemala');
+            ->weeklyOn(4, '09:25')
+            ->timezone('America/Los_Angeles');
     }
 
     /**
